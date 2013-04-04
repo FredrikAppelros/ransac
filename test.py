@@ -4,9 +4,11 @@ import numpy as np
 import gc
 import matplotlib.pyplot as plt
 
-from random import sample, randint
+from random import seed, sample, randint
 from ransac import LineModel, ransac
 from time import time
+
+random_seed     = 0
 
 num_iterations  = 100
 num_samples     = 1000
@@ -15,6 +17,7 @@ num_noise       = int(noise_ratio * num_samples)
 
 def setup():
     global data, model
+    seed(random_seed)
     X = np.asarray(range(num_samples))
     Y = 2 * X
     noise = [randint(0, 2 * (num_samples - 1)) for i in xrange(num_noise)]
