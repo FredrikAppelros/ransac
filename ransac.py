@@ -29,7 +29,7 @@ class LineModel(Model):
         k = (Y[-1] - Y[0]) / (X[-1] - X[0])
         m = Y[0] - k * X[0]
         self.params = [k, m]
-        self.residual = sum(self.distance(p) for p in data)
+        self.residual = sum(abs(k * X + m - Y))
 
     def distance(self, point):
         """
