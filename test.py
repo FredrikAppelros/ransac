@@ -9,7 +9,7 @@ from ransac import LineModel, ransac
 from time import time
 
 num_iterations  = 100
-num_samples     = 100
+num_samples     = 1000
 noise_ratio     = 0.8
 num_noise       = int(noise_ratio * num_samples)
 

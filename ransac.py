@@ -2,13 +2,13 @@ from __future__ import division
 
 import numpy as np
 
-from random import sample
+from random import shuffle
 
 class Model(object):
     def fit(self, data):
         raise NotImplementedError
 
-    def distance(self, point):
+    def distance(self, samples):
         raise NotImplementedError
 
 class LineModel(Model):
@@ -20,7 +20,6 @@ class LineModel(Model):
         """
         Fits the model to the data, minimizing the sum of absolute errors.
         """
-        data = np.asarray(data)
         X = data[:,0]
         Y = data[:,1]
         #ret = np.polyfit(X, Y, 1, full=True)
@@ -31,17 +30,17 @@ class LineModel(Model):
         self.params = [k, m]
         self.residual = sum(abs(k * X + m - Y))
 
-    def distance(self, point):
+    def distance(self, samples):
         """
-        Calculates the shortest vertical distance from a data point to the model.
+        Calculates the vertical distances from the samples to the model.
         """
-        x = point[0]
-        y = point[1]
+        X = samples[:,0]
+        Y = samples[:,1]
         k = self.params[0]
         m = self.params[1]
-        dist = abs(k * x + m - y)
+        dists = abs(k * X + m - Y)
 
-        return dist
+        return dists
 
 def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
     """
@@ -86,16 +85,18 @@ def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
     """
     best_params     = None
     best_inliers    = None
-    best_residual   = float('inf')
+    best_residual   = np.inf
 
     for i in xrange(iterations):
-        potential_inliers = sample(xrange(len(data)), min_samples)
-        inliers = [data[i] for i in potential_inliers]
-        model.fit(inliers)
+        indices = range(len(data))
+        shuffle(indices)
+        inliers             = np.asarray([data[i] for i in indices[:min_samples]])
+        shuffled_data       = np.asarray([data[i] for i in indices[min_samples:]])
 
-        for (i, point) in enumerate(data):
-            if i not in potential_inliers and model.distance(point) <= eps:
-                inliers.append(point)
+        model.fit(inliers)
+        dists = model.distance(shuffled_data)
+        more_inliers = shuffled_data[np.where(dists <= eps)[0]]
+        inliers = np.concatenate((inliers, more_inliers))
 
         if len(inliers) >= min_inliers:
             model.fit(inliers)
