@@ -18,13 +18,16 @@ class LineModel(Model):
 
     def fit(self, data):
         """
-        Fits the model to the data, minimizing the sum of absolute errors.
+        Fits the model to the data, minimizing the sum of absolute
+        errors.
+
+        The fitting is done in the simplest manner possible; drawing a
+        line through two of the samples instead of the more common
+        least squares method.
+
         """
         X = data[:,0]
         Y = data[:,1]
-        #ret = np.polyfit(X, Y, 1, full=True)
-        #self.params     = ret[0]
-        #self.residual   = ret[1]
         k = (Y[-1] - Y[0]) / (X[-1] - X[0])
         m = Y[0] - k * X[0]
         self.params = [k, m]
