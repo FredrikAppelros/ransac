@@ -76,7 +76,7 @@ def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
     best_params : list
         The parameters of the model with the best fit.
 
-    best_inliers : list
+    best_inliers : numpy.ndarray
         A list of the inliers belonging to the model with the best fit.
 
     best_residual : float
