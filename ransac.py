@@ -28,7 +28,10 @@ class LineModel(Model):
         """
         X = data[:,0]
         Y = data[:,1]
-        k = (Y[-1] - Y[0]) / (X[-1] - X[0])
+        denom = (X[-1] - X[0])
+        if denom == 0:
+            raise ZeroDivisionError
+        k = (Y[-1] - Y[0]) / denom
         m = Y[0] - k * X[0]
         self.params = [k, m]
         self.residual = sum(abs(k * X + m - Y))
@@ -63,9 +66,11 @@ def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
     min_samples : int
         The minimum number of samples needed to fit the model.
 
-    min_inliers : int
+    min_inliers : number
         The number of inliers required to assert that the model
-        is a good fit.
+        is a good fit. If 0 < min_inliers < 1 then min_inliers
+        is considered a percentage of the number of samples in
+        the data.
 
     iterations : int
         The number of iterations that the algorithm should run.
@@ -85,7 +90,15 @@ def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
     best_residual : float
         The residual of the inliers.
 
+    Raises
+    ------
+    ValueError
+        If the algorithm could not find a good fit for the data.
+
     """
+    if 0 < min_inliers < 1:
+        min_inliers = int(min_inliers * len(data))
+
     best_params     = None
     best_inliers    = None
     best_residual   = np.inf
@@ -96,17 +109,24 @@ def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
         inliers             = np.asarray([data[i] for i in indices[:min_samples]])
         shuffled_data       = np.asarray([data[i] for i in indices[min_samples:]])
 
-        model.fit(inliers)
-        dists = model.distance(shuffled_data)
-        more_inliers = shuffled_data[np.where(dists <= eps)[0]]
-        inliers = np.concatenate((inliers, more_inliers))
-
-        if len(inliers) >= min_inliers:
+        try:
             model.fit(inliers)
-            if model.residual < best_residual:
-                best_params     = model.params
-                best_inliers    = inliers
-                best_residual   = model.residual
+            dists = model.distance(shuffled_data)
+            more_inliers = shuffled_data[np.where(dists <= eps)[0]]
+            inliers = np.concatenate((inliers, more_inliers))
+
+            if len(inliers) >= min_inliers:
+                model.fit(inliers)
+                if model.residual < best_residual:
+                    best_params     = model.params
+                    best_inliers    = inliers
+                    best_residual   = model.residual
+        except ZeroDivisionError:
+            pass
+
+    if not best_params:
+        raise ValueError("RANSAC failed to find a sufficiently good fit for "
+                "the data. Check that input data has sufficient rank.")
 
     return (best_params, best_inliers, best_residual)
 

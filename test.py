@@ -32,7 +32,10 @@ def run():
     gc.disable()
     start_time = time()
     for i in xrange(num_iterations):
-        (params, inliers, residual) = ransac(data, model, 2, (1 - noise_ratio) * num_samples)
+        try:
+            (params, inliers, residual) = ransac(data, model, 2, (1 - noise_ratio) * num_samples)
+        except ValueError:
+            pass
     end_time = time()
     mean_time = (end_time - start_time) / num_iterations
     gc.enable()
