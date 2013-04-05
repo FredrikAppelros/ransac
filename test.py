@@ -5,7 +5,7 @@ import gc
 import matplotlib.pyplot as plt
 
 from random import seed, sample, randint
-from ransac_ import LineModel, ransac
+from ransac import LineModel, ransac
 from time import time
 
 random_seed     = 0

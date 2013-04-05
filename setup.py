@@ -6,7 +6,7 @@ setup(name="ransac",
       author='Fredrik Appelros, Carl Ekerot',
       author_email='fredrik.appelros@gmail.com, kalle@implode.se',
       url='https://github.com/FredrikAppelros/ransac',
-      py_modules=['ransac_'],
+      py_modules=['ransac'],
       install_requires=['numpy'],
 )
 
