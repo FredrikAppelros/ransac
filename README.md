@@ -13,6 +13,11 @@ in order for it to work for a specific problem.
 
 You can read more about RANSAC [here](http://en.wikipedia.org/wiki/RANSAC).
 
+Installation
+------------
+
+Install ransac with ```python setup.py install```
+
 Usage
 -----
 ```python
@@ -33,3 +38,4 @@ License
 -------
 
 Distributed under the MIT license. See the ```LICENSE``` file.
+
