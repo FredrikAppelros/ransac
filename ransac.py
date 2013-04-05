@@ -96,6 +96,9 @@ def ransac(data, model, min_samples, min_inliers, iterations=100, eps=1e-10):
         If the algorithm could not find a good fit for the data.
 
     """
+    if len(data) <= min_samples:
+        raise ValueError("Not enough input data to fit the model.")
+
     if 0 < min_inliers < 1:
         min_inliers = int(min_inliers * len(data))
 
